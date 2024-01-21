@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
+import "./CallPage.css";
 
 const CallPage = () => {
-  const [buttonColor, setButtonColor] = useState("green");
   const [isCallActive, setIsCallActive] = useState(false);
   const [mediaStream, setMediaStream] = useState(null);
   const [hubConnection, setHubConnection] = useState(null);
@@ -45,7 +45,6 @@ const CallPage = () => {
   };
 
   const startCall = () => {
-    setButtonColor("red");
     setIsCallActive(true);
 
     console.log("Creating hub connection");
@@ -81,7 +80,6 @@ const CallPage = () => {
   };
 
   const endCall = () => {
-    setButtonColor("green");
     setIsCallActive(false);
     console.log("scriptProcessorNodeRef:" + scriptProcessorNodeRef.current);
     if (audioProcessEventHandler && scriptProcessorNodeRef.current) {
@@ -129,12 +127,10 @@ const CallPage = () => {
 
   const startSendingAudioData = (stream, connection) => {
     audioContextRef.current = new AudioContext();
-    const mediaStreamSource = audioContextRef.current.createMediaStreamSource(stream);
-    scriptProcessorNodeRef.current = audioContextRef.current.createScriptProcessor(
-      4096,
-      1,
-      1
-    );
+    const mediaStreamSource =
+      audioContextRef.current.createMediaStreamSource(stream);
+    scriptProcessorNodeRef.current =
+      audioContextRef.current.createScriptProcessor(4096, 1, 1);
     mediaStreamSource.connect(scriptProcessorNodeRef.current);
     scriptProcessorNodeRef.current.connect(audioContextRef.current.destination);
     scriptProcessorNodeRef.current.addEventListener("audioprocess", (e) =>
@@ -175,25 +171,19 @@ const CallPage = () => {
     };
   }, [hubConnection]);
 
-  const buttonStyle = {
-    backgroundColor: buttonColor,
-    padding: "20px 20px",
-    color: "white",
-    cursor: "pointer",
-    borderRadius: 50,
-    height: 100,
-    width: 100,
-    position: "absolute",
-    bottom: "50px",
-    left: "50%",
-    transform: "translateX(-50%)",
-  };
-
   return (
     <div style={{ position: "relative", height: "100vh" }}>
-      <button style={buttonStyle} onClick={handleButtonClick}>
-        {isCallActive ? "End" : "Dial"}
-      </button>
+      {isCallActive ? (
+        <>
+          <button className="end-botton" onClick={handleButtonClick}>
+            End
+          </button>
+        </>
+      ) : (
+        <button className="call-botton" onClick={handleButtonClick}>
+          Dial
+        </button>
+      )}
     </div>
   );
 };
