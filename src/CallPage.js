@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
 import "./CallPage.css";
+import { v4 as uuidv4 } from 'uuid';
 
 const CallPage = () => {
   const [isCallActive, setIsCallActive] = useState(false);
@@ -8,6 +9,17 @@ const CallPage = () => {
   const [hubConnection, setHubConnection] = useState(null);
   const scriptProcessorNodeRef = useRef(null);
   const audioContextRef = useRef(null);
+
+
+  const getOrCreateClientId = () => {
+    const key = 'clientid';
+    let storedGUID = localStorage.getItem(key);
+    if (!storedGUID) {
+      storedGUID = uuidv4();
+      localStorage.setItem(key, storedGUID);
+    }
+    return storedGUID;
+  };
 
   const handleButtonClick = () => {
     if (isCallActive) {
@@ -20,13 +32,13 @@ const CallPage = () => {
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
-        .withUrl("https://localhost:7256/bothub", {
+        .withUrl("https://localhost:7256/callhub", {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
         .build();
 
-      connection.on("ReceiveMessage", (receivedMessage) => {
+      connection.on("SendAudioStream", (receivedMessage) => {
         console.log("Received message data:", receivedMessage);
         // Handle received message as needed
       });
@@ -34,7 +46,7 @@ const CallPage = () => {
       connection
         .start()
         .then(() => {
-          connection.invoke("SendMessage", "");
+          connection.invoke("Register", getOrCreateClientId());
           resolve(connection);
         })
         .catch((error) => {
@@ -113,16 +125,29 @@ const CallPage = () => {
   };
 
   const audioProcessEventHandler = (e, connection) => {
-    console.log("Audio event");
     const buffer = e.inputBuffer.getChannelData(0);
 
     if (connection.state === "Connected") {
-      connection.send("sendAudioData", buffer.buffer);
+        console.log("Audio chunk sent to backend.");
+        const base64String = arrayBufferToBase64(buffer.buffer);
+      connection.send("SendAudioData",base64String);
     } else {
       console.warn(
         "Connection not in the 'Connected' state. Unable to send data."
       );
     }
+  };
+
+  const arrayBufferToBase64 = (buffer) => {
+    let binary = "";
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+  
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+  
+    return btoa(binary);
   };
 
   const startSendingAudioData = (stream, connection) => {
@@ -146,7 +171,7 @@ const CallPage = () => {
 
     if (hubConnection) {
       hubConnection.onclose((error) => {
-        console.log("Hub connection closed:", error);
+        console.log("Hub connection closed. error:", error);
         handleConnectionStateChange("Closed");
       });
 
