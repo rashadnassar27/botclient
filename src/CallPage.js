@@ -2,14 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
 import "./CallPage.css";
 import { v4 as uuidv4 } from 'uuid';
+import RecordRTC, {StereoAudioRecorder} from 'recordrtc';
 
 const CallPage = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [mediaStream, setMediaStream] = useState(null);
   const [hubConnection, setHubConnection] = useState(null);
-  const scriptProcessorNodeRef = useRef(null);
-  const audioContextRef = useRef(null);
-
+  const mediaRecorderRef = useRef(null);
 
   const getOrCreateClientId = () => {
     const key = 'clientid';
@@ -72,7 +71,18 @@ const CallPage = () => {
 
             // Check if the connection is in the 'Connected' state before starting to send audio data
             if (newHubConnection.state === "Connected") {
-              startSendingAudioData(stream, newHubConnection);
+                mediaRecorderRef.current = new RecordRTC(stream, {
+                type: 'audio',
+                recorderType: StereoAudioRecorder,
+                mimeType: 'audio/wav',
+                numberOfAudioChannels: 1,
+                desiredSampRate: 16000,
+                timeSlice: 200,
+                ondataavailable: (blob) => {
+                    audioProcessEventHandler(blob, newHubConnection);
+                  },
+            });
+            mediaRecorderRef.current.startRecording();
             } else {
               console.warn(
                 "Connection not in the 'Connected' state. Unable to start sending audio data."
@@ -93,74 +103,42 @@ const CallPage = () => {
 
   const endCall = () => {
     setIsCallActive(false);
-    console.log("scriptProcessorNodeRef:" + scriptProcessorNodeRef.current);
-    if (audioProcessEventHandler && scriptProcessorNodeRef.current) {
-      console.log("Remove audio event listener");
-      scriptProcessorNodeRef.current.removeEventListener(
-        "audioprocess",
-        audioProcessEventHandler
-      );
-      console.log("Disconnect scriptProcessorNodeRef");
-      scriptProcessorNodeRef.current.disconnect();
-    }
-
-    // Close the AudioContext
-    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-      console.log("Closing audio context");
-      audioContextRef.current.close().catch((error) => {
-        console.error("Error closing AudioContext:", error);
-      });
+    if( mediaRecorderRef.current){
+        mediaRecorderRef.current.stopRecording();
+        mediaRecorderRef.current.reset();
+        mediaRecorderRef.current.destroy();
+        console.log("RTC media recorder Closed");
     }
 
     if (mediaStream) {
-      console.log("Close the microphone");
       mediaStream.getTracks().forEach((track) => track.stop());
       setMediaStream(null);
+      console.log("Microphone Closed");
     }
 
     if (hubConnection) {
       hubConnection.stop();
       setHubConnection(null);
+      console.log("Signalr connection Closed");
     }
   };
 
-  const audioProcessEventHandler = (e, connection) => {
-    const buffer = e.inputBuffer.getChannelData(0);
+  const audioProcessEventHandler = (event, connection) => {
 
     if (connection.state === "Connected") {
-        console.log("Audio chunk sent to backend.");
-        const base64String = arrayBufferToBase64(buffer.buffer);
-      connection.send("SendAudioData",base64String);
+        if (event && event.size > 0) {
+            const reader = new FileReader();
+            reader.readAsDataURL(event);
+            reader.onloadend = () => {
+              const base64AudioMessage = reader.result.split(",")[1];
+              connection.send("SendAudioData", base64AudioMessage);
+            };
+          }
     } else {
       console.warn(
         "Connection not in the 'Connected' state. Unable to send data."
       );
     }
-  };
-
-  const arrayBufferToBase64 = (buffer) => {
-    let binary = "";
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-  
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-  
-    return btoa(binary);
-  };
-
-  const startSendingAudioData = (stream, connection) => {
-    audioContextRef.current = new AudioContext();
-    const mediaStreamSource =
-      audioContextRef.current.createMediaStreamSource(stream);
-    scriptProcessorNodeRef.current =
-      audioContextRef.current.createScriptProcessor(4096, 1, 1);
-    mediaStreamSource.connect(scriptProcessorNodeRef.current);
-    scriptProcessorNodeRef.current.connect(audioContextRef.current.destination);
-    scriptProcessorNodeRef.current.addEventListener("audioprocess", (e) =>
-      audioProcessEventHandler(e, connection)
-    );
   };
 
   useEffect(() => {
@@ -214,3 +192,4 @@ const CallPage = () => {
 };
 
 export default CallPage;
+
