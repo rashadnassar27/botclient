@@ -31,7 +31,7 @@ const CallPage = () => {
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
-        .withUrl("https://localhost:7256/callhub", {
+        .withUrl("https://localhost:4000/callhub", {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
@@ -144,7 +144,9 @@ const CallPage = () => {
   useEffect(() => {
     const handleConnectionStateChange = (state) => {
       console.log(`Connection state changed to: ${state}`);
-      // Optionally, you can add logic to handle state changes
+      if(state == 'Closed'){
+        endCall();
+      }
     };
 
     if (hubConnection) {
