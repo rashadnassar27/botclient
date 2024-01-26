@@ -131,7 +131,7 @@ const CallPage = () => {
             reader.readAsDataURL(event);
             reader.onloadend = () => {
               const base64AudioMessage = reader.result.split(",")[1];
-              connection.send("SendAudioData", base64AudioMessage);
+              connection.send("SendAudioDataToServer", base64AudioMessage);
             };
           }
     } else {
