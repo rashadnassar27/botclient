@@ -37,7 +37,7 @@ const CallPage = () => {
         })
         .build();
 
-      connection.on("SendAudioStream", (receivedMessage) => {
+      connection.on("SendAudioDataToClient", (receivedMessage) => {
         console.log("Received message data:", receivedMessage);
         // Handle received message as needed
       });
