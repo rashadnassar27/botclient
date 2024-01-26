@@ -37,8 +37,8 @@ const CallPage = () => {
         })
         .build();
 
-      connection.on("SendAudioDataToClient", (receivedMessage) => {
-        console.log("Received message data:", receivedMessage);
+      connection.on("SendAudioDataToClient", (audioChunk) => {
+        console.log("Received audio chunk");
         // Handle received message as needed
       });
 
@@ -54,6 +54,7 @@ const CallPage = () => {
         });
     });
   };
+  
 
   const startCall = () => {
     setIsCallActive(true);
