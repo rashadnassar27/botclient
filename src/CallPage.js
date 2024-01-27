@@ -56,7 +56,8 @@ const CallPage = () => {
     sourceRef.current.connect(audioContextRef.current.destination);
     sourceRef.current.start();
 
-    sourceRef.current.onended = () => {
+    sourceRef.current.onended = async () => {
+      await new Promise(r => setTimeout(r, 200)); // some gap between sentences
       isPlayingRef.current = false;
       playNextBuffer();
       console.log("Audio played successfully");
