@@ -176,6 +176,11 @@ const CallPage = () => {
         }
       });
 
+      connection.on("StopSpeaking", () => {
+        resetPlayer();
+        console.log("Received stop speaking request");
+      });
+
       connection
         .start()
         .then(() => {
