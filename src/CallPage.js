@@ -3,143 +3,14 @@ import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
 import "./CallPage.css";
 import { v4 as uuidv4 } from 'uuid';
 import RecordRTC, {StereoAudioRecorder} from 'recordrtc';
-import Queue from "./Queue";
+import  AudioBufferPlayer from "./AudioBufferPlayer.js";
 
 const CallPage = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [mediaStream, setMediaStream] = useState(null);
   const [hubConnection, setHubConnection] = useState(null);
   const mediaRecorderRef = useRef(null);
-  const queueRef = useRef(new Queue());
-  const isPlayingRef = useRef(false);
-  const audioBufferIsRunning = useRef(false);
-  const audioContextRef = useRef(null);
-  const sourceRef = useRef(null);
-
-
-  useEffect(() => {
-    if (!audioContextRef.current) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioContextRef.current = new AudioContext();
-    }
-  }, []);
-
-  const toBlob = (base64, contentType) => {
-    if(base64 == undefined){
-      console.log('base64 input is undefined!');
-      return;
-    }
-
-    base64 = base64.replace(/-/g, "+");
-    base64 = base64.replace(/_/g, "/");
-    const bytesArr = atob(base64);
-    const byteNumbers = new Array(bytesArr.length);
-    for (let i = 0; i < bytesArr.length; i++) {
-      byteNumbers[i] = bytesArr.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: contentType });
-  };
-
-  const playAudio = (audioData) => {
-    const reader = new FileReader();
-    reader.onload = function() {
-      const arrayBuffer = this.result;
-      audioContextRef.current.decodeAudioData(arrayBuffer, playBuffer, errorHandler);
-    };
-    reader.readAsArrayBuffer(toBlob(audioData, 'audio/mpeg'));
-  };
-
-  function playBuffer(audioBuffer) {
-    sourceRef.current = audioContextRef.current.createBufferSource();
-    sourceRef.current.buffer = audioBuffer;
-    sourceRef.current.connect(audioContextRef.current.destination);
-    sourceRef.current.start();
-
-    sourceRef.current.onended = async () => {
-      await new Promise(r => setTimeout(r, 200)); // some gap between sentences
-      isPlayingRef.current = false;
-      playNextBuffer();
-      console.log("Audio played successfully");
-    };
-  }
-
-  function errorHandler(e) {
-    console.error("Error decoding audio data: " + e.err);
-    isPlayingRef.current = false;
-  }
-  
-
-  const resetPlayer = () => {
-    if (sourceRef.current) {
-      sourceRef.current.stop();
-      sourceRef.current = null;
-      console.log("sourceRef resetted.");
-    }else{
-      console.log("sourceRef not resetted it's seems undefined!");
-    }
-
-    if(queueRef.current){
-    queueRef.current.clear();
-    }
-    queueRef.current = new Queue();
-    isPlayingRef.current = false;
-    console.log("Audio player resetted.");
-  }
-
-  const bufferAndPlayAudio = (base64Chunk) => {
-    if(base64Chunk == undefined){
-      console.log('base64Chunk input is undefined!');
-      return;
-    }
-
-    queueRef.current.enqueue(base64Chunk);
-    if (!audioBufferIsRunning.current) {
-      audioBufferIsRunning.current = true;
-      playNextBuffer();
-    }
-  };
-
-
-  const getSlice = () => {
-    let byteArray = [];
-    let length = queueRef.current.length;
-    var i = 0;
-    for (i = 0; i < length; i++) {
-      let d = queueRef.current.dequeue();
-      var b = atob(d);
-      byteArray = byteArray.concat(b);
-    }
-
-    if(i > 1){
-      console.log('getSlice return a slice of ' + i + ' chunks.')
-    }
-    return btoa(byteArray);
-  };
-
-
-  const playNextBuffer=() =>{
-    
-    if(queueRef.current.isEmpty){
-      audioBufferIsRunning.current = false;
-      console.log("Speech done.")
-      return;
-    }
-
-    isPlayingRef.current = true;
-    console.log("isPlayingRef>>: " + isPlayingRef.current)
-    var buffer = getSlice();
-    //var buffer = queueRef.current.dequeue();
-    //console.log("buffer to play: " + buffer)
-    playAudio(buffer);
-  }
-
-  const testQueue = () => {
-    console.log("=== Current Queue Content ===");
-    console.log("Queue:", queueRef.current.queue);
-    console.log("Queue Size:", queueRef.current.length);
-    console.log("=============================");
-  };
+  const audioRef = useRef(new AudioBufferPlayer());
 
   const getOrCreateClientId = () => {
     const key = 'clientid';
@@ -171,14 +42,14 @@ const CallPage = () => {
       connection.on("SendAudioDataToClient", (audioChunk) => {
         console.log("Received audio chunk");
         try {
-          bufferAndPlayAudio(audioChunk);
+          audioRef.current.addBufferAndPlay(audioChunk);
         } catch (error) {
           console.log(error);
         }
       });
 
       connection.on("StopSpeaking", () => {
-        resetPlayer();
+        audioRef.current.reset();
         console.log("Received stop speaking request");
       });
 
@@ -198,7 +69,7 @@ const CallPage = () => {
 
   const startCall = () => {
     setIsCallActive(true);
-    resetPlayer();
+    audioRef.current.reset();
     console.log("Creating hub connection");
     createHubConnection()
       .then((newHubConnection) => {
@@ -244,7 +115,7 @@ const CallPage = () => {
 
   const endCall = () => {
     setIsCallActive(false);
-    resetPlayer();
+    audioRef.current.reset();
     if( mediaRecorderRef.current){
         mediaRecorderRef.current.stopRecording();
         mediaRecorderRef.current.reset();
