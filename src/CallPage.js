@@ -54,8 +54,9 @@ const CallPage = () => {
       });
 
       connection.on("SessionEnded", () => {
+        console.log("EVENT: Received END session request");
+
         endCall();
-        console.log("Received end session request");
       });
 
       connection
