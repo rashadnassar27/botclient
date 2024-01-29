@@ -53,6 +53,11 @@ const CallPage = () => {
         console.log("Received stop speaking request");
       });
 
+      connection.on("EndSession", () => {
+        endCall();
+        console.log("Received end session request");
+      });
+
       connection
         .start()
         .then(() => {
