@@ -55,8 +55,14 @@ const CallPage = () => {
 
       connection.on("SessionEnded", () => {
         console.log("EVENT: Received END session request");
-
-        endCall();
+       
+        const timer = setInterval(() => {
+          console.log("Still talikng"); 
+          if (!audioRef.current.isRunning) {
+            clearInterval(timer); 
+            endCall();
+          }
+        }, 100); 
       });
 
       connection
