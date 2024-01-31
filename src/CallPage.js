@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
 import "./CallPage.css";
-import { v4 as uuidv4 } from 'uuid';
-import RecordRTC, {StereoAudioRecorder} from 'recordrtc';
-import  AudioBufferPlayer from "./AudioBufferPlayer.js";
+import { v4 as uuidv4 } from "uuid";
+import RecordRTC, { StereoAudioRecorder } from "recordrtc";
+import AudioBufferPlayer from "./AudioBufferPlayer.js";
 
 const CallPage = () => {
   const [isCallActive, setIsCallActive] = useState(false);
@@ -12,8 +12,12 @@ const CallPage = () => {
   const mediaRecorderRef = useRef(null);
   const audioRef = useRef(new AudioBufferPlayer());
 
+  const getCustomer = () => {
+    return window.location.pathname.replace(/^\/+|\/+$/g, "");
+  };
+
   const getOrCreateClientId = () => {
-    const key = 'clientid';
+    const key = "clientid";
     let storedGUID = localStorage.getItem(key);
     if (!storedGUID) {
       storedGUID = uuidv4();
@@ -33,7 +37,7 @@ const CallPage = () => {
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
-        .withUrl("https://localhost:4000/callhub", {
+        .withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
@@ -55,14 +59,14 @@ const CallPage = () => {
 
       connection.on("SessionEnded", () => {
         console.log("EVENT: Received END session request");
-       
+
         const timer = setInterval(() => {
-          console.log("Still talikng"); 
+          console.log("Still talikng");
           if (!audioRef.current.isRunning) {
-            clearInterval(timer); 
+            clearInterval(timer);
             endCall();
           }
-        }, 100); 
+        }, 100);
       });
 
       connection
@@ -77,12 +81,11 @@ const CallPage = () => {
         });
     });
   };
-  
 
   const startCall = () => {
     setIsCallActive(true);
     audioRef.current.reset();
-    console.log("Creating hub connection");
+    console.log("Creating hub connection with customer: " + getCustomer());
     createHubConnection()
       .then((newHubConnection) => {
         setHubConnection(newHubConnection);
@@ -95,18 +98,18 @@ const CallPage = () => {
 
             // Check if the connection is in the 'Connected' state before starting to send audio data
             if (newHubConnection.state === "Connected") {
-                mediaRecorderRef.current = new RecordRTC(stream, {
-                type: 'audio',
+              mediaRecorderRef.current = new RecordRTC(stream, {
+                type: "audio",
                 recorderType: StereoAudioRecorder,
-                mimeType: 'audio/wav',
+                mimeType: "audio/wav",
                 numberOfAudioChannels: 1,
                 desiredSampRate: 16000,
                 timeSlice: 200,
                 ondataavailable: (blob) => {
-                    audioProcessEventHandler(blob, newHubConnection);
-                  },
-            });
-            mediaRecorderRef.current.startRecording();
+                  audioProcessEventHandler(blob, newHubConnection);
+                },
+              });
+              mediaRecorderRef.current.startRecording();
             } else {
               console.warn(
                 "Connection not in the 'Connected' state. Unable to start sending audio data."
@@ -128,11 +131,11 @@ const CallPage = () => {
   const endCall = () => {
     setIsCallActive(false);
     audioRef.current.reset();
-    if( mediaRecorderRef.current){
-        mediaRecorderRef.current.stopRecording();
-        mediaRecorderRef.current.reset();
-        mediaRecorderRef.current.destroy();
-        console.log("RTC media recorder Closed");
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stopRecording();
+      mediaRecorderRef.current.reset();
+      mediaRecorderRef.current.destroy();
+      console.log("RTC media recorder Closed");
     }
 
     if (mediaStream) {
@@ -149,16 +152,15 @@ const CallPage = () => {
   };
 
   const audioProcessEventHandler = (event, connection) => {
-
     if (connection.state === "Connected") {
-        if (event && event.size > 0) {
-            const reader = new FileReader();
-            reader.readAsDataURL(event);
-            reader.onloadend = () => {
-              const base64AudioMessage = reader.result.split(",")[1];
-              connection.send("SendAudioDataToServer", base64AudioMessage);
-            };
-          }
+      if (event && event.size > 0) {
+        const reader = new FileReader();
+        reader.readAsDataURL(event);
+        reader.onloadend = () => {
+          const base64AudioMessage = reader.result.split(",")[1];
+          connection.send("SendAudioDataToServer", base64AudioMessage);
+        };
+      }
     } else {
       console.warn(
         "Connection not in the 'Connected' state. Unable to send data."
@@ -169,7 +171,7 @@ const CallPage = () => {
   useEffect(() => {
     const handleConnectionStateChange = (state) => {
       console.log(`Connection state changed to: ${state}`);
-      if(state == 'Closed'){
+      if (state == "Closed") {
         endCall();
       }
     };
@@ -219,4 +221,3 @@ const CallPage = () => {
 };
 
 export default CallPage;
-
