@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
-import "./CallPage.css";
+import "./CallButton.css";
 import { v4 as uuidv4 } from "uuid";
 import RecordRTC, { StereoAudioRecorder } from "recordrtc";
 import AudioBufferPlayer from "./AudioBufferPlayer.js";
 
-const CallPage = () => {
+const CallButton = () => {
   const [isCallActive, setIsCallActive] = useState(false);
   const [mediaStream, setMediaStream] = useState(null);
   const [hubConnection, setHubConnection] = useState(null);
@@ -205,10 +205,10 @@ const CallPage = () => {
   }, [hubConnection]);
 
   return (
-    <div style={{ position: "relative", height: "100vh" }}>
+    <div>
       {isCallActive ? (
         <>
-          <button className="end-botton" onClick={handleButtonClick}>
+          <button className="call-botton-end" onClick={handleButtonClick}>
             End
           </button>
         </>
@@ -221,4 +221,4 @@ const CallPage = () => {
   );
 };
 
-export default CallPage;
+export default CallButton;
