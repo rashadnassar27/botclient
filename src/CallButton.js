@@ -39,8 +39,8 @@ const CallButton = () => {
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
-          .withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
-         // .withUrl("https://www.gptagent24.com/callhub?customer=" + getCustomer(), {
+          //.withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
+         .withUrl("https://www.gptagent24.com/callhub?customer=" + getCustomer(), {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
