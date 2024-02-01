@@ -10,6 +10,9 @@
     padding: 10px;
     text-align: center;
     height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   h2 {
@@ -26,4 +29,9 @@
     height: 100%;
     margin: 0px auto; /* Adjust the margin based on your layout */
   }
+
+  .call-button-container {
+    float: right;
+  }
+  
   

@@ -4,6 +4,8 @@ import "./CallButton.css";
 import { v4 as uuidv4 } from "uuid";
 import RecordRTC, { StereoAudioRecorder } from "recordrtc";
 import AudioBufferPlayer from "./AudioBufferPlayer.js";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone, faPhoneSlash } from '@fortawesome/free-solid-svg-icons';
 
 const CallButton = () => {
   const [isCallActive, setIsCallActive] = useState(false);
@@ -209,12 +211,12 @@ const CallButton = () => {
       {isCallActive ? (
         <>
           <button className="call-botton-end" onClick={handleButtonClick}>
-            End
+          <FontAwesomeIcon icon={faPhoneSlash} />
           </button>
         </>
       ) : (
         <button className="call-botton" onClick={handleButtonClick}>
-          Dial
+        <FontAwesomeIcon icon={faPhone} />
         </button>
       )}
     </div>

@@ -7,12 +7,11 @@ const Bot = () => {
     <div className="bot-container">
       <div className="top-bar">
         <h2>ePaper Support</h2>
-        {/* Add any other top bar content here */}
+        <CallButton />
       </div>
       <div className="chat-container">
         {/* Chat messages go here */}
       </div>
-      <CallButton />
     </div>
   );
 };
