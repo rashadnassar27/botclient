@@ -3,6 +3,8 @@ import axios from "axios";
 import Cookie from "universal-cookie";
 import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 
+let recognizer;
+
 export async function azureRecgnizeStart(connection) {
   const tokenObj = await getSpeechToken();
   const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(
@@ -12,7 +14,7 @@ export async function azureRecgnizeStart(connection) {
   speechConfig.speechRecognitionLanguage = "he-IL";
 
   const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
-  const recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
+  recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
 
   console.log("Speak into your microphone...");
 
@@ -26,7 +28,11 @@ export async function azureRecgnizeStart(connection) {
           console.error("connection is undefined in azure stt.");
           return;
         }
-        connection.send("OnLocalSpeechRecognizing", result.text);
+        if (connection.state === "Connected") {
+            connection.send("OnLocalSpeechRecognizing", result.text);
+        }else{
+              console.log(`Cannot send the text [${result.text}] due connection state: ` + connection.state);
+            }
       } catch (error) {
         console.error(error);
       }
@@ -40,7 +46,11 @@ export async function azureRecgnizeStart(connection) {
         console.error("connection is undefined in azure stt.");
         return;
       }
+      if (connection.state === "Connected") {
       connection.send("OnLocalSpeechRecgnized", result.text);
+      }else{
+        console.log(`Cannot send the text [${result.text}] due connection state: ` + connection.state);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -50,6 +60,19 @@ export async function azureRecgnizeStart(connection) {
     console.log(`CANCELED: Reason=${e.reason}`);
   };
 }
+
+export function azureRecognizeStop() {
+    if (recognizer) {
+      recognizer.stopContinuousRecognitionAsync(
+        () => {
+          console.log("Recognition stopped successfully.");
+        },
+        (err) => {
+          console.error("Error stopping recognition:", err);
+        }
+      );
+    }
+  }
 
 async function getSpeechToken() {
   const speechKey = "e719cdc5e04e444ca769dd50f1ee05f5";

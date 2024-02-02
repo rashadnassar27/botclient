@@ -6,7 +6,7 @@ import RecordRTC, { StereoAudioRecorder } from "recordrtc";
 import AudioBufferPlayer from "./AudioBufferPlayer.js";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faPhoneSlash } from '@fortawesome/free-solid-svg-icons';
-import { azureRecgnizeStart } from './AzureTTS.js';
+import { azureRecgnizeStart, azureRecognizeStop } from './AzureTTS.js';
 
 const RecognitionMode = {
   LOCALAZURE: "LocalAzure",
@@ -157,6 +157,7 @@ const CallButton = () => {
 
   const endCall = () => {
     setIsCallActive(false);
+    azureRecognizeStop();
     audioRef.current.reset();
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stopRecording();
