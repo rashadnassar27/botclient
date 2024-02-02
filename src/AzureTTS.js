@@ -19,7 +19,17 @@ export async function azureRecgnizeStart(connection) {
   recognizer.startContinuousRecognitionAsync();
 
   recognizer.recognizing = (s, e) => {
-    console.log(`RECOGNIZING: Text=${e.result.text}`);
+    try {
+        const result = e.result;
+        console.log(`RECOGNIZING: Text=${e.result.text}`);
+        if(connection == null || connection == undefined){
+          console.error("connection is undefined in azure stt.");
+          return;
+        }
+        connection.send("OnLocalSpeechRecognizing", result.text);
+      } catch (error) {
+        console.error(error);
+      }
   };
 
   recognizer.recognized = (s, e) => {
@@ -30,7 +40,7 @@ export async function azureRecgnizeStart(connection) {
         console.error("connection is undefined in azure stt.");
         return;
       }
-      connection.send("OnSpeechRecgnized", result.text);
+      connection.send("OnLocalSpeechRecgnized", result.text);
     } catch (error) {
       console.error(error);
     }
