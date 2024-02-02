@@ -5,16 +5,26 @@ import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 
 let recognizer;
 
+const LanguagesCodes = {
+    EnglishUS: 'en-US',
+    EnglishGB: 'en-GB',
+    Hebrew: 'he-IL',
+  };
+
 export async function azureRecgnizeStart(connection) {
   const tokenObj = await getSpeechToken();
   const speechConfig = speechsdk.SpeechConfig.fromAuthorizationToken(
     tokenObj.authToken,
     tokenObj.region
   );
+ 
+ // var autoDetectSourceLanguageConfig = speechsdk.AutoDetectSourceLanguageConfig.fromLanguages([LanguagesCodes.Hebrew]);
+
   speechConfig.speechRecognitionLanguage = "he-IL";
 
   const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
-  recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
+  recognizer = new speechsdk.SpeechRecognizer(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
+  //recognizer = speechsdk.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
 
   console.log("Speak into your microphone...");
 
