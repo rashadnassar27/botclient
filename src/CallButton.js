@@ -19,7 +19,7 @@ const CallButton = () => {
   const [hubConnection, setHubConnection] = useState(null);
   const mediaRecorderRef = useRef(null);
   const audioRef = useRef(new AudioBufferPlayer());
-  const recognitionMode = RecognitionMode.BACKEND;
+  const recognitionMode = RecognitionMode.LOCALAZURE;
 
   const getCustomer = () => {
     return window.location.pathname.replace(/^\/+|\/+$/g, "");
@@ -129,7 +129,7 @@ const CallButton = () => {
         break;
       case RecognitionMode.LOCALAZURE:
         try {
-          azureRecgnizeStart(null);
+          azureRecgnizeStart(connection);
         } catch (err) {
           console.error("Error accessing audio:", err);
         }
