@@ -23,7 +23,7 @@ export async function azureRecgnizeStart(connection) {
   speechConfig.speechRecognitionLanguage = "he-IL";
 
   const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
-  recognizer = new speechsdk.SpeechRecognizer(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
+  recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
   //recognizer = speechsdk.SpeechRecognizer.FromConfig(speechConfig, autoDetectSourceLanguageConfig, audioConfig);
 
   console.log("Speak into your microphone...");
