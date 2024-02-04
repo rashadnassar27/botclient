@@ -1,12 +1,25 @@
 import Queue from "./Queue.js";
 
-class AudioBufferPlayer {
+class AudioBufferPlayer extends EventTarget {
   constructor() {
+    super();
     this.audioContext = new AudioContext();
     this.queue = new Queue();
-    this.isRunning = false;
+    this._isRunning = false;
     this.source = null;
   }
+
+  get isRunning() {
+    return this._isRunning;
+  }
+
+  set isRunning(value) {
+    if (this._isRunning !== value) {
+      this._isRunning = value;
+      this.dispatchEvent(new Event('isRunningChanged'));
+    }
+  }
+
   toBlob(base64, contentType) {
     if(base64 == undefined){
       console.log('base64 input is undefined!');
@@ -23,6 +36,7 @@ class AudioBufferPlayer {
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: contentType });
   }
+
   playAudio(audioData) {
     const reader = new FileReader();
     reader.onload = () => {
@@ -30,15 +44,16 @@ class AudioBufferPlayer {
       if(this.audioContext == undefined){
         console.error("audioContext is undefined. operation cancelled.");
         return;
-        }
-        this.audioContext.decodeAudioData(arrayBuffer, (decodedData) => {
-          this.playBuffer(decodedData); 
-        }, function(error) {
-          console.error("decodeAudioData error", error);
-        });
+      }
+      this.audioContext.decodeAudioData(arrayBuffer, (decodedData) => {
+        this.playBuffer(decodedData); 
+      }, function(error) {
+        console.error("decodeAudioData error", error);
+      });
     };
     reader.readAsArrayBuffer(this.toBlob(audioData, 'audio/mpeg'));
   }
+
   playBuffer(audioBuffer) {
     this.source = this.audioContext.createBufferSource();
     this.source.buffer = audioBuffer;
@@ -51,7 +66,8 @@ class AudioBufferPlayer {
       console.log("Audio buffer played successfully");
     };
   }
- reset(){
+
+  reset(){
     if (this.source) {
       this.source.stop();
       this.source = null;
@@ -67,6 +83,7 @@ class AudioBufferPlayer {
     this.isRunning = false;
     console.log("Audio player resetted.");
   }
+
   addBufferAndPlay(base64Chunk) {
     if(base64Chunk == undefined){
       console.log('base64Chunk input is undefined!');
@@ -81,6 +98,7 @@ class AudioBufferPlayer {
       this.playNextBuffer();
     }
   }
+
   getSlice(){
     let byteArray = [];
     let length = this.queue.length;
@@ -96,7 +114,8 @@ class AudioBufferPlayer {
     }
     return btoa(byteArray);
   }
- playNextBuffer(){
+
+  playNextBuffer(){
     if(this.queue.isEmpty){
       this.isRunning = false;
       console.log("Speech done.")

@@ -46,8 +46,8 @@ const CallButton = () => {
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
-       // .withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
-          .withUrl("https://www.gptagent24.com/callhub?customer=" + getCustomer(), {
+        .withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
+          //.withUrl("https://www.gptagent24.com/callhub?customer=" + getCustomer(), {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
@@ -211,6 +211,27 @@ const CallButton = () => {
         endCall();
       }
     };
+
+    audioRef.current.addEventListener('isRunningChanged', () => {
+      console.log(`isRunning changed to: ${audioRef.current.isRunning}`);
+      try {
+        if (hubConnection) {
+        if (hubConnection.state === "Connected") {
+          hubConnection.send("OnClientBotSpeakingStatus", audioRef.current.isRunning);
+          console.log(`ClientSpeaking Status sent to server: ${audioRef.current.isRunning}`);
+
+        } else {
+          console.log(
+            `Cannot send the client bot speaking status due connection state: ` +
+            hubConnection.state
+          );
+        }}else{
+          console.log("Cannot send the client bot speaking status due hubConnection is null");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    });
 
     if (hubConnection) {
       hubConnection.onclose((error) => {

@@ -3,7 +3,6 @@ import CallButton from "./CallButton"; // Adjust the path accordingly
 import "./Bot.css"; // Import the CSS file for styling
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import epaperlogo from "./assets/images/epaper.png";
 import { Helmet } from "react-helmet";
 
 const Bot = () => {
@@ -24,7 +23,6 @@ const Bot = () => {
       <div className="chat-page">
         <div className="chat-header">
           <div className="logo-container">
-            <epaperlogo />
           </div>
 
           <div className="call-button-container">
