@@ -4,9 +4,9 @@ import "./CallButton.css";
 import { v4 as uuidv4 } from "uuid";
 import RecordRTC, { StereoAudioRecorder } from "recordrtc";
 import AudioBufferPlayer from "./AudioBufferPlayer.js";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhone, faPhoneSlash } from '@fortawesome/free-solid-svg-icons';
-import { azureRecgnizeStart, azureRecognizeStop } from './AzureTTS.js';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPhone, faPhoneSlash } from "@fortawesome/free-solid-svg-icons";
+import { azureRecgnizeStart, azureRecognizeStop } from "./AzureTTS.js";
 
 const RecognitionMode = {
   LOCALAZURE: "LocalAzure",
@@ -15,9 +15,9 @@ const RecognitionMode = {
 
 const CallButton = () => {
   const [isCallActive, setIsCallActive] = useState(false);
-  const [mediaStream, setMediaStream] = useState(null);
   const [hubConnection, setHubConnection] = useState(null);
   const mediaRecorderRef = useRef(null);
+  const mediaStrearRef = useRef(null);
   const audioRef = useRef(new AudioBufferPlayer());
   const recognitionMode = RecognitionMode.BACKEND;
 
@@ -46,8 +46,8 @@ const CallButton = () => {
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
-          .withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
-         //.withUrl("https://www.gptagent24.com/callhub?customer=" + getCustomer(), {
+       // .withUrl("https://localhost:4000/callhub?customer=" + getCustomer(), {
+          .withUrl("https://www.gptagent24.com/callhub?customer=" + getCustomer(), {
           skipNegotiation: true,
           transport: HttpTransportType.WebSockets,
         })
@@ -99,8 +99,7 @@ const CallButton = () => {
         navigator.mediaDevices
           .getUserMedia({ audio: true })
           .then((stream) => {
-            setMediaStream(stream);
-
+            mediaStrearRef.current = stream;
             // Check if the connection is in the 'Connected' state before starting to send audio data
             if (connection.state === "Connected") {
               mediaRecorderRef.current = new RecordRTC(stream, {
@@ -140,42 +139,51 @@ const CallButton = () => {
   };
 
   const startCall = () => {
-    setIsCallActive(true);
-    audioRef.current.reset();
-    console.log("Creating hub connection with customer: " + getCustomer());
-    createHubConnection()
-      .then((newHubConnection) => {
-        setHubConnection(newHubConnection);
-        console.log("Recognition Started");
-        startRecognition(newHubConnection);  
-      })
-      .catch((error) => {
-        console.error("Error creating hub connection:", error);
-        endCall();
-      });
+    try {
+      setIsCallActive(true);
+      audioRef.current.reset();
+      console.log("Creating hub connection with customer: " + getCustomer());
+      createHubConnection()
+        .then((newHubConnection) => {
+          setHubConnection(newHubConnection);
+          console.log("Recognition Started");
+          startRecognition(newHubConnection);
+        })
+        .catch((error) => {
+          console.error("Error creating hub connection:", error);
+          endCall();
+        });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const endCall = () => {
-    setIsCallActive(false);
-    azureRecognizeStop();
-    audioRef.current.reset();
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stopRecording();
-      mediaRecorderRef.current.reset();
-      mediaRecorderRef.current.destroy();
-      console.log("RTC media recorder Closed");
-    }
+    try {
+      setIsCallActive(false);
+      azureRecognizeStop();
+      audioRef.current.reset();
 
-    if (mediaStream) {
-      mediaStream.getTracks().forEach((track) => track.stop());
-      setMediaStream(null);
-      console.log("Microphone Closed");
-    }
+      if (mediaStrearRef.current) {
+        mediaStrearRef.current.stop();
+        mediaStrearRef.current = null;
+        console.log("Microphone Closed");
+      }
 
-    if (hubConnection) {
-      hubConnection.stop();
-      setHubConnection(null);
-      console.log("Signalr connection Closed");
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stopRecording();
+        mediaRecorderRef.current.reset();
+        mediaRecorderRef.current.destroy();
+        console.log("RTC media recorder Closed");
+      }
+
+      if (hubConnection) {
+        hubConnection.stop();
+        setHubConnection(null);
+        console.log("Signalr connection Closed");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -236,12 +244,12 @@ const CallButton = () => {
       {isCallActive ? (
         <>
           <button className="call-botton-end" onClick={handleButtonClick}>
-          <FontAwesomeIcon icon={faPhoneSlash} />
+            <FontAwesomeIcon icon={faPhoneSlash} />
           </button>
         </>
       ) : (
         <button className="call-botton" onClick={handleButtonClick}>
-        <FontAwesomeIcon icon={faPhone} />
+          <FontAwesomeIcon icon={faPhone} />
         </button>
       )}
     </div>
