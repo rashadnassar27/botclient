@@ -43,6 +43,8 @@ const CallButton = () => {
     }
   };
 
+
+
   const createHubConnection = () => {
     return new Promise((resolve, reject) => {
       const connection = new HubConnectionBuilder()
@@ -71,7 +73,7 @@ const CallButton = () => {
         console.log("EVENT: Received END session request");
 
         const timer = setInterval(() => {
-          console.log("Still talikng");
+          console.log("Still taliknag");
           if (!audioRef.current.isRunning) {
             clearInterval(timer);
             endCall();

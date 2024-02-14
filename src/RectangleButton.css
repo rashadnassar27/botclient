@@ -1,0 +1,18 @@
+/* RectangleButton.css */
+
+.rectangle-button {
+    background-color: #007bff; /* Blue color, you can change this */
+    color: #fff; /* White text color */
+    border: none;
+    padding: 10px 20px; /* Adjust padding as needed */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    transition: background-color 0.3s ease;
+    height: 100%;
+  }
+  
+  .rectangle-button:hover {
+    background-color: #0056b3; /* Darker blue color on hover */
+  }
+  
