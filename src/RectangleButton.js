@@ -15,7 +15,7 @@ const RecognitionMode = {
   BACKEND: "Backend",
 };
 
-const RectangleButton = ({bgcolor, customer, lang, voice, sttprovider, ttsprovider, aiProvider }) => {
+const RectangleButton = ({onCallStarted, bgcolor, customer, lang, voice, sttprovider, ttsprovider, aiProvider }) => {
     const [isCallActive, setIsCallActive] = useState(false);
     const [hubConnection, setHubConnection] = useState(null);
     const mediaRecorderRef = useRef(null);
@@ -39,6 +39,7 @@ const RectangleButton = ({bgcolor, customer, lang, voice, sttprovider, ttsprovid
             var url = buildUrl(params);
             console.log('url:' + url);
 
+            onCallStarted();
           startCall(url);
         }
       };

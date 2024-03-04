@@ -1,0 +1,24 @@
+.call-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    max-width: 90%; /* Set a maximum width */
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+    .call-dialog {
+        max-width: 80%; /* Adjust maximum width for smaller screens */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .call-dialog {
+        max-width: 95%; /* Adjust maximum width for even smaller screens */
+    }
+}
