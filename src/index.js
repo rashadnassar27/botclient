@@ -2,12 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import CallMenu from './CallMenu';
+import CallWidget from './CallWidget';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+
 root.render(
   <React.StrictMode>
-    <CallMenu />
+   <CallWidget
+                        customer="ePaper"
+                        lang="he-IL"
+                        voice="he-IL-Wavenet-B"
+                        sttprovider="azure"
+                        ttsprovider="google"
+                        aiProvider="AzureOpenAi"
+                    />
   </React.StrictMode>
 );
 
