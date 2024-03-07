@@ -7,6 +7,7 @@ import AudioBufferPlayer from "./AudioBufferPlayer.js";
 import { azureRecgnizeStart, azureRecognizeStop } from "./AzureTTS.js";
 import "./CallWidget.css";
 import callerAvatar from "./assets/images/agent.png";
+import { useLocation } from 'react-router-dom';
 
 const RecognitionMode = {
   LOCALAZURE: "LocalAzure",
@@ -22,7 +23,9 @@ const CallWidget = ({customer, lang, voice, sttprovider, ttsprovider, aiProvider
     const recognitionMode = RecognitionMode.BACKEND;
     const callerName = useState(customer);
     const [callDuration, setCallDuration] = useState(0);
-
+    const location = useLocation();
+    const { param1, param2 } = location.state;
+    
     useEffect(() => {
       const timer = setInterval(() => {
         setCallDuration(prevDuration => prevDuration + 1);

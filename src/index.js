@@ -1,26 +1,32 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import CallWidget from './CallWidget';
+import AgentsMenu from './AgentsMenu.js';
+import CallWidget from './CallWidget.js';
+
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-
 root.render(
   <React.StrictMode>
-   <CallWidget
-                        customer="ePaper"
-                        lang="he-IL"
-                        voice="he-IL-Wavenet-B"
-                        sttprovider="azure"
-                        ttsprovider="google"
-                        aiProvider="AzureOpenAi"
-                    />
+    <Router>
+      <Routes>
+        <Route path="/" element={<AgentsMenu />} />
+        <Route path="/call-widget" element={
+          <CallWidget
+            customer="ePaper"
+            lang="he-IL"
+            voice="he-IL-Wavenet-B"
+            sttprovider="azure"
+            ttsprovider="google"
+            aiProvider="AzureOpenAi"
+          />
+        } />
+      </Routes>
+    </Router>
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

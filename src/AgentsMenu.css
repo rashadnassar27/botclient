@@ -1,0 +1,48 @@
+.agent-menu {
+    text-align: center;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .button {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+    background-color: #41d7bb; /* Green background */
+    border: 2px solid #41d7bb; /* Green border */
+    border-radius: 8px;
+    padding: 10px 20px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    flex-grow: 1;
+  }
+  
+  .button-text-container {
+    margin-left: 10px; /* Adjust margin as needed */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: flex-start; /* Align items to the start */
+  }
+
+  .button-text-container h4 {
+    color: rgb(195, 31, 176); 
+  }
+  
+  .button img {
+    width: 50px; /* Adjust as needed */
+    height: 50px; /* Adjust as needed */
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .button span {
+    font-size: 18px; /* Adjust as needed */
+  }
