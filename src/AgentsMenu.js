@@ -24,7 +24,7 @@ const AgentMenu = () => {
 
     const onclick_pizza_he = () =>{
         console.log('onclick_pizza_he');
-        navigate('/call-widget', { state: { param1: 'value1', param2: 'value2' } });
+        navigate('/call-widget', { state: { customer:"ePaper", lang:"he-IL",  voice:"he-IL-Wavenet-B", sttprovider:"azure", ttsprovider:"google", aiProvider:"AzureOpenAi" }});
     }
 
   return (

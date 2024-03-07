@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import AgentsMenu from './AgentsMenu.js';
@@ -15,14 +15,7 @@ root.render(
       <Routes>
         <Route path="/" element={<AgentsMenu />} />
         <Route path="/call-widget" element={
-          <CallWidget
-            customer="ePaper"
-            lang="he-IL"
-            voice="he-IL-Wavenet-B"
-            sttprovider="azure"
-            ttsprovider="google"
-            aiProvider="AzureOpenAi"
-          />
+          <CallWidget/>
         } />
       </Routes>
     </Router>
