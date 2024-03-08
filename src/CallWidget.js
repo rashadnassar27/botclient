@@ -23,24 +23,29 @@ const CallWidget = () => {
   const recognitionMode = RecognitionMode.BACKEND;
   const [callDuration, setCallDuration] = useState(0);
   const location = useLocation();
-  const { customer, lang, voice, sttprovider, ttsprovider, aiProvider } =
-    location.state;
-  const callerName = useState(customer);
+  const { customer, language, voice, sttprovider, ttsprovider, gender, name, rate, displayName } = location.state;
+  const isSetupCallInvoked = useRef(false);
 
   useEffect(() => {
     console.log(
       "customer: " +
         customer +
-        ", lang: " +
-        lang +
+        ", language: " +
+        language +
         ", voice: " +
         voice +
         ", sttprovider: " +
         sttprovider +
         ", ttsprovider: " +
         ttsprovider +
-        ", aiProvider: " +
-        aiProvider
+        ", gender: " +
+        gender +
+        ", name: " +
+        name +
+        ", rate: " +
+        rate +
+        ", displayName: " +
+        displayName 
     );
 
     try {
@@ -48,7 +53,6 @@ const CallWidget = () => {
     } catch (error) {
       console.error(error);
       alert("Network failure.");
-      //window.location.href = "/";
     }
     const timer = setInterval(() => {
       setCallDuration((prevDuration) => prevDuration + 1);
@@ -69,11 +73,13 @@ const CallWidget = () => {
     } else {
       var params = {
         customer: customer,
-        language: lang,
+        language: language,
         voice: voice,
-        aiProvider: aiProvider,
         sttProvider: sttprovider,
         ttsProvider: ttsprovider,
+        gender: gender,
+        name: name,
+        rate: rate
       };
 
       var url = buildUrl(params);
@@ -120,8 +126,12 @@ const CallWidget = () => {
 
       connection
         .start()
-        .then(() => {
-          connection.invoke("Register", "");
+        .then(() => {    
+          if (!isSetupCallInvoked.current) { 
+            isSetupCallInvoked.current = true; 
+            console.log('SetupCall called for: '+ customer);
+            connection.invoke("SetupCall", customer, language, voice, sttprovider, ttsprovider, gender, name, rate);
+          }
           resolve(connection);
         })
         .catch((error) => {
@@ -310,17 +320,21 @@ const CallWidget = () => {
 
   function buildUrl(params) {
     var baseUrl = "https://localhost:4000/callhub";
-    var queryString = Object.keys(params)
+   // var baseUrl = "https://www.gptagent24.com/callhub";
+
+   return baseUrl;
+   /* var queryString = Object.keys(params)
       .map((key) => `${key}=${encodeURIComponent(params[key])}`)
       .join("&");
-    return `${baseUrl}?${queryString}`;
+    return `${baseUrl}?${queryString}`;*/
   }
+  
   return (
     <div className="iphone-call">
       <div className="iphone-body">
         <div className="caller-info">
-          <img src={callerAvatar} alt={callerName} className="caller-avatar" />
-          <span className="caller-name">{callerName}</span>
+          <img src={callerAvatar} alt={displayName} className="caller-avatar" />
+          <span className="caller-name">{displayName}</span>
         </div>
 
         <div className="audio-equalizer">

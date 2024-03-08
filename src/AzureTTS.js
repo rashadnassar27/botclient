@@ -18,9 +18,9 @@ export async function azureRecgnizeStart(connection) {
     tokenObj.region
   );
  
- // var autoDetectSourceLanguageConfig = speechsdk.AutoDetectSourceLanguageConfig.fromLanguages([LanguagesCodes.Hebrew]);
+  //var autoDetectSourceLanguageConfig = speechsdk.AutoDetectSourceLanguageConfig.fromLanguages([LanguagesCodes.Hebrew]);
 
-  speechConfig.speechRecognitionLanguage = "he-IL";
+  speechConfig.speechRecognitionLanguage = LanguagesCodes.EnglishUS;
 
   const audioConfig = speechsdk.AudioConfig.fromDefaultMicrophoneInput();
   recognizer = new speechsdk.SpeechRecognizer(speechConfig, audioConfig);
@@ -85,8 +85,8 @@ export function azureRecognizeStop() {
   }
 
 async function getSpeechToken() {
-  const speechKey = "e719cdc5e04e444ca769dd50f1ee05f5";
-  const speechRegion = "eastus";
+  const speechKey = "8ab7a5d702e34164aa2982819432f71c";
+  const speechRegion = "switzerlandnorth";
   if (
     speechKey === "paste-your-speech-key-here" ||
     speechRegion === "paste-your-speech-region-here"
