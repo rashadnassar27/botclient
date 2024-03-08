@@ -109,9 +109,9 @@ const AgentMenu = () => {
         displayName: "Room Service",
         customer:"room-service-en",
         language:"en-US",
-        voice:"alloy",
-        sttprovider:"google",
-        ttsprovider:"openai",
+        voice:"en-US-MonicaNeural",
+        sttprovider:"azure",
+        ttsprovider:"azure",
         gender: "female",
         name: "Alex",
         rate: 1.0

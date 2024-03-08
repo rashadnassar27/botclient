@@ -319,8 +319,8 @@ const CallWidget = () => {
   }, [hubConnection]);
 
   function buildUrl(params) {
-    var baseUrl = "https://localhost:4000/callhub";
-   // var baseUrl = "https://www.gptagent24.com/callhub";
+   // var baseUrl = "https://localhost:4000/callhub";
+   var baseUrl = "https://www.gptagent24.com/callhub";
 
    return baseUrl;
    /* var queryString = Object.keys(params)
